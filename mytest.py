@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#coding=utf-8
+#coding=gbk
 
 import sys
 import os
@@ -31,38 +31,41 @@ def sendmsg(options, records):
         time.sleep(0.5)
         ret = ser.read(ser.inWaiting())
         if not options.quiet:
-            sys.stderr.write(u"ä¿¡æ¯è®¾ç½®ï¼š%s ã€è¿”å›å€¼ï¼š%sã€‘\n" % (record, ret))
+            sys.stderr.write("ĞÅÏ¢ÉèÖÃ£º%s ¡¾·µ»ØÖµ£º%s¡¿\n" % (record, ret))
         ser.write("%%r#%s%%" % i)
         time.sleep(0.5)
         ret = ser.read(ser.inWaiting()).decode('gbk')
         if ret == record:
-            sys.stderr.write(u"è¯»å–åºå·%sï¼š%s ã€è®¾ç½®æˆåŠŸã€‘\n" % (i, ret))
+            sys.stderr.write("¶ÁÈ¡ĞòºÅ%s£º%s ¡¾ÉèÖÃ³É¹¦¡¿\n" % (i, ret))
         else:
-            sys.stderr.write(u"è¯»å–åºå·%sï¼š%s ã€è®¾ç½®å¤±è´¥ã€‘\n" % (i, ret))
+            sys.stderr.write("¶ÁÈ¡ĞòºÅ%s£º%s ¡¾ÉèÖÃÊ§°Ü¡¿\n" % (i, ret))
 
     ser.close()
     return 0	
 
 if __name__ == '__main__':
+    reload(sys)
+    sys.setdefaultencoding('gbk')
+
     parser = optparse.OptionParser(
         usage = "%prog [options] [port [baudrate]]",
-        description = u"è¡¡é˜³äººåŠ›èµ„æºç½‘æ•°æ®æŠ“å–ç¨‹åºã€‚")
+        description = "ºâÑôÈËÁ¦×ÊÔ´ÍøÊı¾İ×¥È¡³ÌĞò¡£")
 
     parser.add_option("-q", "--quiet",
         dest = "quiet",
         action = "store_true",
-        help = u"å±è”½ä¸é‡è¦çš„æç¤ºä¿¡æ¯",
+        help = "ÆÁ±Î²»ÖØÒªµÄÌáÊ¾ĞÅÏ¢",
         default = False
     )
 
     group = optparse.OptionGroup(parser,
-        u"ä¸²å£å‚æ•°è®¾ç½®"
+        "´®¿Ú²ÎÊıÉèÖÃ"
     )
     parser.add_option_group(group)
 
     group.add_option("-p", "--port",
         dest = "port",
-        help = u"è®¾ç½®ç«¯å£åç§°ï¼Œé»˜è®¤ï¼š%default",
+        help = "ÉèÖÃ¶Ë¿ÚÃû³Æ£¬Ä¬ÈÏ£º%default",
         default = "COM1"
     )
 
@@ -70,29 +73,27 @@ if __name__ == '__main__':
         dest = "baudrate",
         action = "store",
         type = 'int',
-        help = u"è®¾ç½®æ³¢ç‰¹ç‡ï¼Œé»˜è®¤ï¼š%default",
+        help = "ÉèÖÃ²¨ÌØÂÊ£¬Ä¬ÈÏ£º%default",
         default = 9600
     )
 
     group.add_option("", "--parity",
         dest = "parity",
         action = "store",
-        help = u"è®¾ç½®æ ¡éªŒä½ [N, E, O]ï¼Œé»˜è®¤ï¼š%default",
+        help = "ÉèÖÃĞ£ÑéÎ» [N, E, O]£¬Ä¬ÈÏ£º%default",
         default = 'N'
     )
     (options, args) = parser.parse_args()
 
-    response = urllib2.urlopen("http://www.hysrlzy.com/injob.aspx?hy=all")
-    html = response.read()
+    url = "http://www.hy12333.gov.cn/bbs/forum.php?mod=forumdisplay&fid=55"
+    request = urllib2.Request(url)
+    request.add_header("User-Agent","Mozilla/5.0 (Windows NT 6.2; rv:16.0) Gecko/20100101 Firefox/16.0")
+    html = urllib2.urlopen(request).read()
     soup = BeautifulSoup(html, from_encoding="gbk")
-    rmzp = soup.find("div", {"class" : "rmzp_hot"})
     records = []  # store all of the records in this list
-    for row in rmzp.findAll('li'):
-        title = row.a.string.strip()
-        content = row.p.string.strip()
-        if content != u"è¯šè˜ï¼š":
-            record = "%s %s" % (title, content)
-            records.append(record)
+    for row in soup.findAll("th", {"class" : "new"}):
+        record = row.a.string.strip()
+        records.append(record)
 
     sendmsg(options, records)
 	
@@ -100,7 +101,7 @@ if __name__ == '__main__':
         file = open('c:\LEDTEST.txt', 'w') 
         file.write('      %s' % record.encode('gbk')) 
         file.close() 
-        sys.stderr.write(u"c:\LEDTEST.txt å·²åˆ·æ–°ï¼š      %s\n" % record)
+        sys.stderr.write("c:\LEDTEST.txt ÒÑË¢ĞÂ£º      %s\n" % record)
         time.sleep(60)
 
     if not options.quiet:
